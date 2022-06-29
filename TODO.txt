@@ -1,0 +1,4 @@
+- SAVE team and fixture data into db
+- CREATE function to load data from db instead of scraper for faster load times
+- ADD point betting system.
+- Add notify / alarm function for upcoming games
