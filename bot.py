@@ -23,8 +23,8 @@ async def cmd(ctx):
     await ctx.send(cmds)
 
 @bot.command()
-async def table(ctx):
-    table = scraper.send_table()
+async def table(ctx,arg=''):
+    table = scraper.send_table(arg)
 
     await ctx.send(table)
 

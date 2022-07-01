@@ -1,9 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
+import sqlalchemy
 import teams as t
 import fixtures as f
-
-
+import db
+from datetime import datetime
+    
 def set_table():
     """ Set up beautiful soup for reading the league table.
     """
@@ -101,22 +103,87 @@ def get_fixtures():
     return fixture_list     
     
 
-def send_table():
+def send_table(arg=''):
     """ Get league table, and format it to be readable in discord.
-    """
-    table = get_table()
-    text = '```diff\n'
+    """  
+    session = db.load_session()
+    today = datetime.now().date()
     
-    for x in table:
-        text += x + '\n'
+    if arg != '-force':
+        #if data for today is stored then skip scraping and send saved data
+        for s in session.query(db.Application).filter(
+            db.Application.type=='table',
+            db.Application.date==today
+            ).order_by(
+                sqlalchemy.desc(db.Application.id)
+            ):
+
+            text = s.data
+            
+            #send to discord
+            return text
+
+        #run if no data for today is stored
+        table = get_table()
+        text = '```diff\n'
         
-    text += '```'
+        for x in table:
+            text += x + '\n'
+            
+        text += '```'
+
+        #add to db
+        text_to_db = db.Application(data=text,type='table')
+        session = db.load_session()
+        session.add(text_to_db)
+        session.commit()
     
-    return text
+        #send to discord
+        return text
+    else:
+        table = get_table()
+        
+        text = '```diff\n'
+        
+        for x in table:
+            text += x + '\n'
+            
+        text += '```'
+        
+        for s in session.query(db.Application).filter(
+            db.Application.type=='table',
+            db.Application.date==today
+            ).order_by(
+                sqlalchemy.desc(db.Application.id)
+            ):
+                #update data
+                s.data = text
+                session.commit()
+                
+                #send to discord
+                return text
+                
 
 def send_fixtures():
     """ Get fixture list, and format it to be readable in discord.
-    """
+    """ 
+    session = db.load_session()
+    today = datetime.now().date()
+    
+    #if data for today is stored then skip scraping and send saved data
+    for s in session.query(db.Application).filter(
+        db.Application.type=='sched',
+        db.Application.date==today
+        ).order_by(
+            sqlalchemy.desc(db.Application.id)
+        ):
+
+        text = s.data
+        
+        #send to discord
+        return text
+    
+    #run if no data for today is stored
     fixtures = get_fixtures()
     text = ''
     
@@ -125,5 +192,13 @@ def send_fixtures():
         row += x + '\n'
         row += '```'
         text += row
+        
+    #add to db
+    text_to_db = db.Application(data=text,type='sched')
+    session = db.load_session()
+    session.add(text_to_db)
+    session.commit()
     
+    #send to discord
     return text
+
