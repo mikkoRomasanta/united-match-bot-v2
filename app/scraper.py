@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import sqlalchemy
-import teams as t
-import fixtures as f
+import classes.teams as t
+import classes.fixtures as f
 import db
 from datetime import datetime
     
