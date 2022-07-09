@@ -1,7 +1,9 @@
 import os
 import scraper
 import bot_commands
-from discord.ext import commands
+import notify as nt
+import asyncio
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 
@@ -33,7 +35,25 @@ async def sched(ctx):
     fixtures = scraper.send_fixtures()
 
     await ctx.send(fixtures)
-
+    
+@tasks.loop(seconds=5)
+async def notify_next_match():
+    channel_id = int(os.getenv('TARGET_CHANNEL_ID'))
+    role_id = int(os.getenv('TARGET_ROLE_ID'))
+    channel = bot.get_channel(channel_id)
+    data = nt.check_date_difference()
+    delay = data["delay"]
+    data["role"] = role_id
+    
+    if delay != 0:
+        notify = nt.send_notification(data)
+        await channel.send(notify)
+        await asyncio.sleep(delay)
+    
+@notify_next_match.before_loop
+async def before():
+    await bot.wait_until_ready()
 
 #RUN BOT
+notify_next_match.start()
 bot.run(os.getenv('DISCORD_BOT_TOKEN'))

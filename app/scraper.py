@@ -68,7 +68,7 @@ def get_table():
 
     return table
 
-def get_fixtures():
+def get_fixtures(arg=''):
     """ Scrapes site for fixture list and info. Create object for each fixture then append into table.
     """
     fixtures = set_fixtures()
@@ -77,10 +77,16 @@ def get_fixtures():
     year = fixtures.find('h3').text.split(' ')
     year = year[1]
 
-    for index, fixture in enumerate(fixtures.find_all('h4',limit=5)):
+    #set limit. 1 = used to notify next match date
+    if arg != '-notify': 
+        limit = 5 
+    else: 
+        limit = 1 
+    
+    for index, fixture in enumerate(fixtures.find_all('h4',limit=limit)):
         date = fixture.get_text()
         date = date.split(' ')
-        date[1] = date[1][:len(date[1])-2]
+        date[1] = date[1][:len(date[1])-2] #ex. 27th
         competition = fixture.find_next_sibling('h5').text
         matchdiv = fixture.find_next_sibling('div')
         time = matchdiv.find('span',{'class':'matches__date'}).text.strip()
@@ -97,13 +103,23 @@ def get_fixtures():
             away,
             )
         
+        if limit == 1:
+            match_datetime = matchinfo.convert_datetime()
+            match_info = matchinfo.format_datetime()
+            data = {
+                "match_datetime" : match_datetime,
+                "match_info" : match_info
+            }
+                        
+            return data
+        
         match = matchinfo.format_datetime()
         fixture_list.append(match)
         
     return fixture_list     
     
 
-def send_table(arg=''):
+def send_table(arg):
     """ Get league table, and format it to be readable in discord.
     """  
     session = db.load_session()
@@ -202,3 +218,6 @@ def send_fixtures():
     #send to discord
     return text
 
+        
+if __name__=="__main__":
+    get_fixtures('-notify')

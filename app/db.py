@@ -1,5 +1,6 @@
+from xmlrpc.client import Boolean
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Text, Date
+from sqlalchemy import Column, String, Integer, Text, Date, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import update
@@ -19,6 +20,16 @@ class Application(base):
     data = Column(Text)
     type = Column(String(255))
     date = Column(Date, default=datetime.now())
+    
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        
+class Notify(base):
+    __tablename__ = 'notify'
+    
+    id = Column(Integer, primary_key=True)
+    date = Column(DateTime)
+    status = Column(Boolean, default=0)
     
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
