@@ -24,16 +24,6 @@ class Application(base):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         
-class Notify(base):
-    __tablename__ = 'notify'
-    
-    id = Column(Integer, primary_key=True)
-    date = Column(DateTime)
-    status = Column(Boolean, default=0)
-    
-    def __init__(self,**kwargs):
-        super().__init__(**kwargs)
-        
 base.metadata.create_all(engine)
 
 def load_session():

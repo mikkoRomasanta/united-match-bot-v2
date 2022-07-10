@@ -30,7 +30,7 @@ def check_date_difference():
         now = dt.datetime.now()
         now = now.astimezone()
         diff = match_datetime - now
-
+        #set time for notification
         notify1 = 79200 #22 hours
         notify2 = 7200 #2 hours
         
@@ -38,7 +38,6 @@ def check_date_difference():
         #notify if less than 1 day
         if diff.days < 1 and diff.seconds > notify1:
             #send discord notification
-            # return 'testless'
             data = {
                 'delay': 60,
                 'time': diff.seconds,
@@ -48,7 +47,6 @@ def check_date_difference():
         #notify if less than 2 hours
         if diff.days < 1 and diff.seconds < notify2:
             #send discord notification
-            # return 'testless 2'
             data = {
                 'delay': 60,
                 'time': diff.seconds,

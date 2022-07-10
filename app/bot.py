@@ -36,11 +36,13 @@ async def sched(ctx):
 
     await ctx.send(fixtures)
     
-@tasks.loop(seconds=5)
+@tasks.loop(hours=1)
 async def notify_next_match():
+    #set targets
     channel_id = int(os.getenv('TARGET_CHANNEL_ID'))
     role_id = int(os.getenv('TARGET_ROLE_ID'))
     channel = bot.get_channel(channel_id)
+    
     data = nt.check_date_difference()
     delay = data["delay"]
     data["role"] = role_id
@@ -48,6 +50,7 @@ async def notify_next_match():
     if delay != 0:
         notify = nt.send_notification(data)
         await channel.send(notify)
+        #sleep task if notification is sent.
         await asyncio.sleep(delay)
     
 @notify_next_match.before_loop
