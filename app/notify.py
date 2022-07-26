@@ -36,21 +36,28 @@ def check_date_difference():
     
     #send match data and delay the next task.loop if sending notification. 
     #notify if less than 1 day
-    if diff.days < 1 and diff.days >= 0 and diff.seconds > notify1:
+    if diff.days < 4 and diff.days >= 0 and diff.seconds > notify1:
         #send discord notification
         data = {
+            'notify': True,
             'time': diff.seconds,
-            'info': match_info
+            'info': match_info,
+            'diff': diff
         }
     #notify if less than 2 hours
-    elif diff.days < 1 and diff.days >= 0 and diff.seconds < notify2:
+    elif diff.days < 4 and diff.days >= 0 and diff.seconds < notify2:
         #send discord notification
         data = {
+            'notify': True,
             'time': diff.seconds,
-            'info': match_info
+            'info': match_info,
+            'diff': diff
         }        
     else:
-        data = {}
+        data = {
+            'notify': False,
+            'diff':diff
+        }
         
     return data
     

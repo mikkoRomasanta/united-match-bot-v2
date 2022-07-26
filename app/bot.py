@@ -5,10 +5,12 @@ import notify as nt
 import asyncio
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
+import logging
+import logging.config
+import datetime as dt
 
 
 load_dotenv()
-
 #BOT SETTINGS
 bot = commands.Bot(command_prefix='!', 
                    case_insensitive=True)
@@ -36,9 +38,13 @@ async def sched(ctx):
 
     await ctx.send(fixtures)
     
-@tasks.loop(hours=1)
+@tasks.loop(seconds=10)
 async def notify_next_match():
     global notify_delay
+    
+    logging.info(f'[{dt.datetime.now()}] Running task. '
+                 f'notify_delay: {notify_delay}')
+    
     if notify_delay > 0:
         notify_delay -= .4 #skip 3x after sending notification
     elif notify_delay < 0:
@@ -48,14 +54,19 @@ async def notify_next_match():
         channel_id = int(os.getenv('TARGET_CHANNEL_ID'))
         role_id = int(os.getenv('TARGET_ROLE_ID'))
         channel = bot.get_channel(channel_id)
-        
+    
         data = nt.check_date_difference()
-        
+            
+        logging.info(f'Receiving data. \n{data} \n')
         #Run notification
-        if bool(data) != False:
+        if data['notify'] != False:
             notify_delay = 1
             data["role"] = role_id
             notify = nt.send_notification(data)
+            logging.info(f'Sending notification. \n'
+                         f'data: {notify}'
+                         )
+            
             await channel.send(notify)
     
 @notify_next_match.before_loop
@@ -63,6 +74,9 @@ async def before():
     #set global
     global notify_delay
     notify_delay = 0
+    
+    logging.config.fileConfig("../logging.conf", disable_existing_loggers=False,
+                              defaults={'logfilename': '../bot.log'})
     
     await bot.wait_until_ready()
 
