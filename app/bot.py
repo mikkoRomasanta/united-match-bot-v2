@@ -38,7 +38,7 @@ async def sched(ctx):
 
     await ctx.send(fixtures)
     
-@tasks.loop(seconds=10)
+@tasks.loop(hours=1)
 async def notify_next_match():
     global notify_delay
     
