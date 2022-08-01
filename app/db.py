@@ -29,5 +29,11 @@ base.metadata.create_all(engine)
 def load_session():
     Session = sessionmaker(bind=engine)
     session = Session()
-    
+
     return session
+
+def close_session(session):
+    session.close()
+    engine.dispose()
+    
+    return

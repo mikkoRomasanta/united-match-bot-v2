@@ -135,7 +135,7 @@ def send_table(arg):
             ):
 
             text = s.data
-            session.close()
+            db.close_session(session)
             
             #send to discord
             return text
@@ -154,7 +154,7 @@ def send_table(arg):
         session = db.load_session()
         session.add(text_to_db)
         session.commit()
-        session.close()
+        db.close_session(session)
         
         #send to discord
         return text
@@ -177,7 +177,7 @@ def send_table(arg):
                 #update data
                 s.data = text
                 session.commit()
-                session.close()
+                db.close_session(session)
                 
                 #send to discord
                 return text
@@ -198,7 +198,7 @@ def send_fixtures():
         ):
 
         text = s.data
-        session.close()
+        db.close_session(session)
         
         #send to discord
         return text
@@ -218,10 +218,7 @@ def send_fixtures():
     session = db.load_session()
     session.add(text_to_db)
     session.commit()
-    session.close()
+    db.close_session(session)
 
     #send to discord
     return text
-
-if __name__=="__main__":
-    print(send_fixtures())

@@ -2,7 +2,6 @@ import os
 import scraper
 import bot_commands
 import notify as nt
-import asyncio
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import logging
@@ -38,7 +37,7 @@ async def sched(ctx):
 
     await ctx.send(fixtures)
     
-@tasks.loop(hours=1)
+@tasks.loop(minutes=30)
 async def notify_next_match():
     global notify_delay
     
@@ -46,7 +45,7 @@ async def notify_next_match():
                  f'notify_delay: {notify_delay}')
     
     if notify_delay > 0:
-        notify_delay -= .4 #skip 3x after sending notification
+        notify_delay -= .2 #skip 6x after sending notification
     elif notify_delay < 0:
         notify_delay = 0
     else:
