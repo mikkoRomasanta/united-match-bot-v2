@@ -168,7 +168,7 @@ def send_fixtures():
     today = datetime.now().date()
     today = today.strftime("%Y-%m-%d")
 
-    saved_data = db.find_data("table",today)
+    saved_data = db.find_data("sched",today)
     
     #if data for today is stored then skip scraping and send saved data
     if saved_data:
