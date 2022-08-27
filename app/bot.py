@@ -8,7 +8,6 @@ import logging
 import logging.config
 import datetime as dt
 
-
 load_dotenv()
 #BOT SETTINGS
 bot = commands.Bot(command_prefix='!', 
@@ -55,7 +54,7 @@ async def notify_next_match():
         channel = bot.get_channel(channel_id)
     
         data = nt.check_date_difference()
-            
+        
         logging.info(f'Receiving data. \n{data} \n')
         #Run notification
         if data['notify'] != False:
@@ -74,7 +73,7 @@ async def before():
     global notify_delay
     notify_delay = 0
     
-    logging.config.fileConfig("../logging.conf", disable_existing_loggers=False,
+    logging.config.fileConfig("logging.conf", disable_existing_loggers=False,
                               defaults={'logfilename': '../bot.log'})
     
     await bot.wait_until_ready()

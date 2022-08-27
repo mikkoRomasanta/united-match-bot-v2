@@ -1,2 +1,3 @@
 - ADD point betting system.
 - Add notify / alarm function for upcoming games
+- CREATE .sh file for vm

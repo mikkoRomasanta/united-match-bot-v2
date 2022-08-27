@@ -1,39 +1,65 @@
-from xmlrpc.client import Boolean
-from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Text, Date, DateTime, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.expression import update
+from gc import collect
+import pymongo
+from pymongo import MongoClient
 from datetime import datetime
 import os
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
-engine = create_engine(os.getenv('SQLALCHEMY_DB_URI'))
-base = declarative_base()
+UTDBOT_DB = os.getenv('MONGODB_URI')
+cluster = None
+db = None
+collection = None
 
-class Application(base):
-    __tablename__ = 'application'
+
+def start_db():
+    global cluster, db ,collection
     
-    id = Column(Integer, primary_key=True)
-    data = Column(Text)
-    type = Column(String(255))
-    date = Column(Date, default=datetime.now())
+    cluster = MongoClient(UTDBOT_DB)
+    db = cluster["mikkoro"]
+    collection = db["utdbot"]
+
+def close_db():
+    global cluster
     
-    def __init__(self,**kwargs):
-        super().__init__(**kwargs)
-        
-base.metadata.create_all(engine)
+    cluster.close()
 
-def load_session():
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    return session
-
-def close_session(session):
-    session.close()
-    engine.dispose()
+def check_connection():
+    start_db()
+    global collection
     
-    return
+    try:
+        collection = db["utdbot"]
+        print(collection)
+    except:
+        start_db()
+
+def update_data(type,data,date):
+    check_connection()
+    
+    query = {
+        "type":type
+    }
+    
+    to_update = {
+        "$set": {
+            "data": data,
+            "date": date
+        }
+    }
+    
+    collection.update_one(query,to_update)
+    
+def find_data(type,date):
+    check_connection()
+    
+    to_find = {
+        "type": type,
+        "date": date
+    }
+    
+    response = collection.find_one(to_find)
+    
+    return response
