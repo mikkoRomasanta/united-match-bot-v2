@@ -32,7 +32,6 @@ def check_connection():
     
     try:
         collection = db["utdbot"]
-        print(collection)
     except:
         start_db()
 

@@ -1,7 +1,9 @@
 import os
+from re import L
 import scraper
 import bot_commands
 import notify as nt
+import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import logging
@@ -10,8 +12,17 @@ import datetime as dt
 
 load_dotenv()
 #BOT SETTINGS
+intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='!', 
-                   case_insensitive=True)
+                   case_insensitive=True,intents=intents)
+
+#SETUP LOGGING
+handler = logging.FileHandler(filename='bot.log', encoding='utf-8', mode='w')
+
+@bot.event
+async def on_ready() -> None:
+    print(f'Bot is online...')
+    notify_next_match.start()
 
 #COMMANDS
 @bot.command()
@@ -73,11 +84,12 @@ async def before():
     global notify_delay
     notify_delay = 0
     
-    logging.config.fileConfig("logging.conf", disable_existing_loggers=False,
-                              defaults={'logfilename': '../bot.log'})
-    
     await bot.wait_until_ready()
 
+@notify_next_match.after_loop
+async def after():
+    if notify_next_match.is_being_cancelled or notify_next_match._has_failed:
+        notify_next_match.restart()
+
 #RUN BOT
-notify_next_match.start()
-bot.run(os.getenv('DISCORD_BOT_TOKEN'))
+bot.run(os.getenv('DISCORD_BOT_TOKEN'), log_handler=handler, log_level=logging.DEBUG)
