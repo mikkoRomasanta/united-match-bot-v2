@@ -13,15 +13,17 @@ import datetime as dt
 load_dotenv()
 #BOT SETTINGS
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix='!', 
                    case_insensitive=True,intents=intents)
 
 #SETUP LOGGING
-handler = logging.FileHandler(filename='bot.log', encoding='utf-8', mode='w')
+logging.config.fileConfig("logging.conf", disable_existing_loggers=False,
+                              defaults={'logfilename': 'bot.log'})
 
 @bot.event
 async def on_ready() -> None:
-    print(f'Bot is online...')
+    logging.info('Bot running...')
     notify_next_match.start()
 
 #COMMANDS
@@ -92,4 +94,4 @@ async def after():
         notify_next_match.restart()
 
 #RUN BOT
-bot.run(os.getenv('DISCORD_BOT_TOKEN'), log_handler=handler, log_level=logging.DEBUG)
+bot.run(os.getenv('DISCORD_BOT_TOKEN'))

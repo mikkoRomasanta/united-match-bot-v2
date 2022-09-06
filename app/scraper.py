@@ -46,7 +46,7 @@ def get_table():
     for team in league_table.find_all('tbody'):
         table = []
         #setup header
-        header = t.TeamInfo('#','Teams','GP','Pts')
+        header = t.TeamInfo('#','Teams','GP','GD','Pts')
         header = header.add_to_table()
         table.append(header)
 
@@ -57,11 +57,12 @@ def get_table():
             position = row.find_all('td', class_ = 'standing-table__cell')[0].text
             played = row.find_all('td', class_ = 'standing-table__cell')[2].text
             points = row.find_all('td', class_ = 'standing-table__cell')[9].text
+            gd = row.find_all('td', class_ = 'standing-table__cell')[8].text
             
             if team == 'Manchester United':
                 position = f'-{position}'
 
-            team_info = t.TeamInfo(position, team, played, points)
+            team_info = t.TeamInfo(position, team, played, gd, points)
             new_team = team_info.add_to_table()
             table.append(new_team)
 
